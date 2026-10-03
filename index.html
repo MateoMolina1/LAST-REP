@@ -115,6 +115,9 @@ aside.filters{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);max-
 .card .ph{position:relative;aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:var(--soft)}
 .card .ph img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
 .card:hover .ph img{transform:scale(1.035)}
+.badges{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.badges .badge{position:static}
+.badge.top{background:var(--ink);color:var(--paper)}
 .badge{font-family:var(--display);font-style:italic;position:absolute;top:10px;left:10px;background:var(--red);color:var(--on-accent);font-weight:800;font-size:13px;padding:4px 9px;border-radius:8px}
 .soldout{position:absolute;inset:auto 10px 10px 10px;background:var(--card);color:var(--ink);font-size:13px;font-weight:700;text-align:center;padding:6px;border-radius:8px}
 .card .nm{font-weight:650;font-size:15px;line-height:1.3}
@@ -198,6 +201,26 @@ legend{font-weight:700;font-size:15px;margin-bottom:10px;padding:0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:12px;font-weight:600;font-size:14px;z-index:60;transition:transform .25s ease;max-width:calc(100vw - 32px)}
 .toast.on{transform:translate(-50%,0)}
 
+/* Encargo personalizado */
+.encargo{padding:12px 0 72px}
+.enc-card{display:grid;grid-template-columns:1fr 1.2fr;gap:0;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:var(--card)}
+.enc-side{background:var(--band);color:var(--band-ink);padding:34px 30px;display:flex;flex-direction:column;gap:14px}
+.enc-side h2{font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;font-size:clamp(36px,4.4vw,56px);line-height:.92;margin:0}
+.enc-side p{margin:0;color:var(--band-muted)}
+.enc-side ol{margin:6px 0 0;padding-left:20px;color:var(--band-ink);display:flex;flex-direction:column;gap:6px;font-weight:600}
+.enc-form{padding:28px 30px}
+.enc-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.enc-grid .full{grid-column:1/-1}
+.field select{border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 12px;outline:none}
+.chipset{display:flex;flex-wrap:wrap;gap:6px}
+.chipset label{position:relative}
+.chipset input{position:absolute;opacity:0;pointer-events:none}
+.chipset span{display:inline-block;padding:7px 12px;border:1.5px solid var(--line);border-radius:999px;font-size:13px;cursor:pointer}
+.chipset input:checked+span{background:var(--red);color:var(--on-accent);border-color:var(--red);font-weight:700}
+.chipset input:focus-visible+span{outline:3px solid var(--ink);outline-offset:2px}
+@media (max-width:860px){.enc-card{grid-template-columns:1fr}.enc-side,.enc-form{padding:24px 20px}}
+@media (max-width:520px){.enc-grid{grid-template-columns:1fr}}
+.hero .ctas{display:flex;gap:10px;flex-wrap:wrap}
 footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:13px}
 footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 footer p{margin:0;max-width:62ch}
@@ -226,7 +249,7 @@ footer p{margin:0;max-width:62ch}
       <div>
         <h1>Ropa de gym original. Directa desde Madrid.</h1>
         <p class="lead">Precios en tu moneda con el envío incluido. Pagas por Revolut, nos mandas el pedido por WhatsApp y lo compramos en cuanto confirmamos la transferencia.</p>
-        <a class="btn primary" href="#catalogo">Ver catálogo</a>
+        <div class="ctas"><a class="btn primary" href="#catalogo">Ver catálogo</a><a class="btn ghost" href="#encargo">Pide tu modelo</a></div>
       </div>
       <div class="ticket" aria-label="Ruta de envío">
         <div class="airmail" aria-hidden="true"></div>
@@ -274,6 +297,7 @@ footer p{margin:0;max-width:62ch}
       <label><span class="sr">Ordenar</span>
         <select class="sort" id="sort">
           <option value="destacados">Mayor descuento</option>
+          <option value="top">Más vendidos</option>
           <option value="precio-asc">Precio: menor a mayor</option>
           <option value="precio-desc">Precio: mayor a menor</option>
           <option value="nombre">Nombre</option>
@@ -287,6 +311,43 @@ footer p{margin:0;max-width:62ch}
         <div id="facets"></div>
       </aside>
       <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section id="encargo" class="wrap encargo">
+    <div class="enc-card">
+      <div class="enc-side">
+        <h2>¿No ves tu modelo favorito?</h2>
+        <p>Te lo buscamos. Dinos qué prenda quieres, en qué color y talla, y te respondemos por WhatsApp con el precio final en tu moneda.</p>
+        <ol>
+          <li>Cuéntanos qué buscas</li>
+          <li>Te pasamos precio y disponibilidad</li>
+          <li>Si te convence, pagas y lo pedimos</li>
+        </ol>
+      </div>
+      <form class="enc-form" id="encForm" autocomplete="on" novalidate>
+        <div class="enc-grid">
+          <div class="field full"><label for="eModelo">Modelo o prenda</label><input id="eModelo" required placeholder="Ej.: leggings Vital Seamless, sudadera Power…"></div>
+          <div class="field full"><label for="eLink">Enlace o referencia (opcional)</label><input id="eLink" placeholder="Pega el enlace si lo tienes"></div>
+          <div class="field"><label for="eColor">Color</label><input id="eColor" placeholder="Ej.: negro"></div>
+          <div class="field"><label for="eTalla">Talla</label>
+            <select id="eTalla"><option value="">Elige talla</option><option>XXS</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>3XL</option><option>No lo sé</option></select></div>
+          <div class="field full"><label>Para</label>
+            <div class="chipset" role="radiogroup" aria-label="Para">
+              <label><input type="radio" name="eGenero" value="Mujer" checked><span>Mujer</span></label>
+              <label><input type="radio" name="eGenero" value="Hombre"><span>Hombre</span></label>
+              <label><input type="radio" name="eGenero" value="Unisex"><span>Unisex</span></label>
+            </div></div>
+          <div class="field full"><label>Presupuesto aproximado (opcional)</label>
+            <div class="chipset" id="ePresu"></div></div>
+          <div class="field"><label for="eNombre">Tu nombre</label><input id="eNombre" required autocomplete="name"></div>
+          <div class="field"><label for="eCiudad">Ciudad</label><input id="eCiudad" required autocomplete="address-level2"></div>
+          <div class="field full"><label for="eNotas">¿Algo más? (opcional)</label><textarea id="eNotas" rows="2" placeholder="Ej.: lo quiero para regalo, me vale otro color parecido…"></textarea></div>
+        </div>
+        <p class="note" style="margin:4px 0 12px">Si tienes una foto o captura del modelo, envíala en el mismo chat.</p>
+        <button class="btn primary" type="submit" style="width:100%">Consultar por WhatsApp</button>
+        <p class="note" id="encMsg" role="status" style="text-align:center;margin:8px 0 0"></p>
+      </form>
     </div>
   </section>
 </main>
@@ -374,7 +435,7 @@ const state = {
   catalogo: [], actualizado: null, esDemo: false,
   rates: Object.assign({}, CONFIG.cambiosRespaldo), ratesFecha: null, ratesVivo: false,
   pais: "MX", orden: "destacados",
-  f: { q: "", categoria: new Set(), genero: new Set(), talla: new Set(), color: new Set(), soloStock: true },
+  f: { q: "", seleccion: new Set(), categoria: new Set(), genero: new Set(), talla: new Set(), color: new Set(), soloStock: true },
   carrito: [], envio: "estandar", ref: "", pagoAbierto: false, cliente: { nombre: "", ciudad: "", direccion: "", notas: "" }
 };
 
@@ -396,6 +457,7 @@ function fmt(v){
   const dec = v % 1 ? 2 : 0;
   return new Intl.NumberFormat(p.locale, { style:"currency", currency:p.moneda, currencyDisplay:"narrowSymbol", minimumFractionDigits:dec, maximumFractionDigits:dec }).format(v) + " " + p.moneda;
 }
+function selecciones(p){ const s = []; if (descuento(p)) s.push("Ofertas"); if (p.top) s.push("Más vendidos"); return s; }
 function descuento(p){ return p.precioAntesEUR > p.precioEUR ? Math.round((1 - p.precioEUR / p.precioAntesEUR) * 100) : 0; }
 
 /* ---------- Imágenes ---------- */
@@ -432,7 +494,7 @@ function normalizarProducto(p){
   return {
     id: String(p.id), nombre: p.nombre || "Producto", marca: p.marca || "", categoria: p.categoria || "Otros",
     genero: p.genero || "Unisex", color: p.color || "", imagen: p.imagen || "", ref: p.ref || p.id,
-    precioEUR: Number(p.precioEUR) || 0, precioAntesEUR: Number(p.precioAntesEUR) || 0,
+    precioEUR: Number(p.precioEUR) || 0, precioAntesEUR: Number(p.precioAntesEUR) || 0, top: !!p.top,
     tallas: (p.tallas || []).map(t => ({ t: String(t.t), d: !!t.d })).sort((a,b) => ordenTalla(a.t, b.t))
   };
 }
@@ -444,6 +506,7 @@ function filtrados(){
       const txt = norm([p.nombre, p.categoria, p.color, p.genero, p.marca].join(" "));
       if (!palabras.every(w => txt.includes(w))) return false;
     }
+    if (f.seleccion.size && !selecciones(p).some(v => f.seleccion.has(v))) return false;
     if (f.categoria.size && !f.categoria.has(p.categoria)) return false;
     if (f.genero.size && !f.genero.has(p.genero)) return false;
     if (f.color.size && !f.color.has(p.color)) return false;
@@ -456,18 +519,20 @@ function filtrados(){
     if (o === "precio-asc") return a.precioEUR - b.precioEUR;
     if (o === "precio-desc") return b.precioEUR - a.precioEUR;
     if (o === "nombre") return a.nombre.localeCompare(b.nombre);
+    if (o === "top") return (b.top - a.top) || (descuento(b) - descuento(a));
     return descuento(b) - descuento(a);
   });
   return out;
 }
 function valores(campo){
   const s = new Set();
-  state.catalogo.forEach(p => { if (campo === "talla") p.tallas.forEach(t => s.add(t.t)); else if (p[campo]) s.add(p[campo]); });
+  state.catalogo.forEach(p => { if (campo === "seleccion") selecciones(p).forEach(v => s.add(v)); else if (campo === "talla") p.tallas.forEach(t => s.add(t.t)); else if (p[campo]) s.add(p[campo]); });
   const arr = [...s];
+  if (campo === "seleccion") return ["Ofertas","Más vendidos"].filter(v => s.has(v));
   return campo === "talla" ? arr.sort(ordenTalla) : arr.sort((a,b) => a.localeCompare(b));
 }
 function renderFacets(){
-  const grupos = [["categoria","Categoría"],["genero","Género"],["talla","Talla"],["color","Color"]];
+  const grupos = [["seleccion","Selección"],["categoria","Categoría"],["genero","Género"],["talla","Talla"],["color","Color"]];
   let h = "";
   grupos.forEach(([k, titulo]) => {
     const vals = valores(k);
@@ -480,7 +545,7 @@ function renderFacets(){
         <button class="clear" type="button" id="clearF">Quitar filtros</button></div>`;
   $("#facets").innerHTML = h;
 }
-function contarFiltros(){ const f = state.f; return f.categoria.size + f.genero.size + f.talla.size + f.color.size; }
+function contarFiltros(){ const f = state.f; return f.seleccion.size + f.categoria.size + f.genero.size + f.talla.size + f.color.size; }
 
 function renderGrid(){
   const list = filtrados();
@@ -488,13 +553,13 @@ function renderGrid(){
   const n = contarFiltros();
   $("#fcount").textContent = n ? "(" + n + ")" : "";
   if (!list.length){
-    $("#grid").innerHTML = `<div class="empty">No hay productos con esos filtros.<br><button class="clear" type="button" data-clear>Quitar filtros</button></div>`;
+    $("#grid").innerHTML = `<div class="empty">No hay productos con esos filtros.<br><button class="clear" type="button" data-clear>Quitar filtros</button><br><br>¿Buscas algo concreto? <a href="#encargo" style="color:var(--red);font-weight:700">Pídenos tu modelo</a></div>`;
     return;
   }
   $("#grid").innerHTML = list.map(p => {
     const d = descuento(p), disp = tallasDisp(p);
     return `<button class="card" type="button" data-id="${esc(p.id)}">
-      <div class="ph">${imgTag(p, p.nombre)}${d ? `<span class="badge">-${d}%</span>` : ""}${disp.length ? "" : `<span class="soldout">Agotado</span>`}</div>
+      <div class="ph">${imgTag(p, p.nombre)}<div class="badges">${d ? `<span class="badge">-${d}%</span>` : ""}${p.top ? `<span class="badge top">Top ventas</span>` : ""}</div>${disp.length ? "" : `<span class="soldout">Agotado</span>`}</div>
       <div>
         <div class="nm">${esc(p.nombre)}</div>
         <div class="meta">${esc([p.color, p.genero].filter(Boolean).join(", "))}</div>
@@ -706,7 +771,7 @@ $("#facets").addEventListener("change", e => {
   if (e.target.id === "soloStock"){ state.f.soloStock = e.target.checked; renderGrid(); }
 });
 $("#facets").addEventListener("click", e => { if (e.target.id === "clearF") limpiarFiltros(); });
-function limpiarFiltros(){ ["categoria","genero","talla","color"].forEach(k => state.f[k].clear()); state.f.q = ""; $("#q").value = ""; renderFacets(); renderGrid(); }
+function limpiarFiltros(){ ["seleccion","categoria","genero","talla","color"].forEach(k => state.f[k].clear()); state.f.q = ""; $("#q").value = ""; renderFacets(); renderGrid(); }
 let qt;
 $("#q").addEventListener("input", e => { clearTimeout(qt); qt = setTimeout(() => { state.f.q = e.target.value; renderGrid(); }, 150); });
 $("#sort").addEventListener("change", e => { state.orden = e.target.value; renderGrid(); });
@@ -723,9 +788,43 @@ function setPais(code){
   state.pais = code; guardar();
   document.querySelectorAll("[data-pais]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pais === code)));
   const p = pais();
+  renderPresupuesto();
   $("#destCode").textContent = p.codigo; $("#destCity").textContent = p.nombre; $("#factCur").textContent = p.moneda;
   renderAll();
 }
+
+/* ---------- Encargo personalizado ---------- */
+function renderPresupuesto(){
+  const p = pais(), cont = $("#ePresu"); if (!cont) return;
+  const prev = (cont.querySelector("input:checked") || {}).value;
+  const tramos = p.moneda === "MXN" ? [["Hasta $800 MXN"],["$800 a $1,500 MXN"],["Más de $1,500 MXN"]] : [["Hasta $40 USD"],["$40 a $75 USD"],["Más de $75 USD"]];
+  cont.innerHTML = tramos.map(([t]) => `<label><input type="radio" name="ePresu" value="${t}" ${prev === t ? "checked" : ""}><span>${t}</span></label>`).join("");
+}
+$("#encForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = id => $(id).value.trim();
+  const modelo = v("#eModelo"), nombre = v("#eNombre"), ciudad = v("#eCiudad");
+  const msg = $("#encMsg");
+  if (!modelo || !nombre || !ciudad){
+    msg.textContent = "Escribe el modelo, tu nombre y tu ciudad."; msg.style.color = "var(--red)";
+    (!modelo ? $("#eModelo") : !nombre ? $("#eNombre") : $("#eCiudad")).focus(); return;
+  }
+  const genero = (document.querySelector('input[name="eGenero"]:checked') || {}).value || "";
+  const presu = (document.querySelector('input[name="ePresu"]:checked') || {}).value || "";
+  let m = `¡Hola LAST REP! Busco un modelo que no veo en la tienda:\n\n`;
+  m += `*Modelo:* ${modelo}\n`;
+  if (v("#eLink")) m += `*Enlace/referencia:* ${v("#eLink")}\n`;
+  if (v("#eColor")) m += `*Color:* ${v("#eColor")}\n`;
+  if ($("#eTalla").value) m += `*Talla:* ${$("#eTalla").value}\n`;
+  if (genero) m += `*Para:* ${genero}\n`;
+  if (presu) m += `*Presupuesto:* ${presu}\n`;
+  if (v("#eNotas")) m += `*Notas:* ${v("#eNotas")}\n`;
+  m += `\nEnvío a ${pais().nombre}, ${ciudad}.\nNombre: ${nombre}\n\n¿Me pasáis precio y disponibilidad? ¡Gracias!`;
+  const a = document.createElement("a");
+  a.href = "https://wa.me/" + CONFIG.whatsapp.replace(/\D/g, "") + "?text=" + encodeURIComponent(m);
+  a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
+  msg.textContent = "Se abrió WhatsApp: envía el mensaje y te respondemos con el precio."; msg.style.color = "";
+});
 
 /* ---------- Toast ---------- */
 let tt;
