@@ -2,7 +2,7 @@
 
 Ropa de gym original, comprada en Madrid y enviada a México y Ecuador.
 
-**Tienda:** https://mateomolina1.github.io/LAST-REP/
+**Tienda:** https://lastrepstore.github.io/
 
 ## Cómo actualizar el catálogo
 
