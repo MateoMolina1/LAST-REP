@@ -125,6 +125,11 @@ aside.filters{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);max-
 .price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .price .now{font-family:var(--display);font-style:italic;font-weight:800;font-size:17px}
 .price .was{font-size:13px;color:var(--muted);text-decoration:line-through}
+.ncol{font-size:12px;font-weight:700;color:var(--red)}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.swatches button{width:54px;height:66px;padding:0;border-radius:9px;overflow:hidden;border:2px solid var(--line);background:var(--soft)}
+.swatches button img{width:100%;height:100%;object-fit:cover}
+.swatches button[aria-pressed="true"]{border-color:var(--red)}
 .sizes-mini{font-size:12px;color:var(--muted);letter-spacing:.02em}
 .empty{grid-column:1/-1;border:1.5px dashed var(--line);border-radius:14px;padding:40px;text-align:center;color:var(--muted)}
 
@@ -428,6 +433,9 @@ const DEMO = { actualizado: null, productos: [
   { id:"d8", nombre:"Calcetines, pack de 3 (ejemplo)", marca:"Gymshark", categoria:"Accesorios", genero:"Unisex", color:"Blanco", precioEUR:10, precioAntesEUR:15, ref:"demo-calcetines", tallas:[{t:"S",d:true},{t:"M",d:true},{t:"L",d:true}] }
 ]};
 
+const TONOS = [["Negro",/black|onyx/],["Blanco",/white/],["Beige",/beige|chalk|linen|canvas|sand|cream|mushroom/],["Gris",/grey|gray|charcoal|pebble|smokey|stratus/],["Azul",/blue|navy|petrol|teal/],["Verde",/green|olive/],["Rosa",/pink|peach/],["Morado",/purple|lilac|plum/],["Rojo",/burgundy|maroon|red|cherry/],["Marrón",/brown|espresso/],["Amarillo",/yellow|butter/]];
+function tonoColor(c){ const s = String(c || "").split("/")[0].toLowerCase(); for (const [n, re] of TONOS) if (re.test(s)) return n; return "Otros"; }
+function familiaDe(p){ return state.catalogo.filter(x => x.familia === p.familia); }
 const ORDEN_TALLAS = ["XXS","XS","S","M","L","XL","XXL","2XL","3XL","4XL","5XL"];
 const COLORES = { negro:"#1d1f24", blanco:"#f1f1ee", gris:"#8a8f99", rosa:"#e8a3b4", verde:"#5f7d5a", azul:"#3b5aa8", rojo:"#c23b3b", beige:"#d8c7a8", marron:"#7a5a43", morado:"#7d5ba6", amarillo:"#e7c14a", naranja:"#e38a3c" };
 
@@ -495,6 +503,7 @@ function normalizarProducto(p){
     id: String(p.id), nombre: p.nombre || "Producto", marca: p.marca || "", categoria: p.categoria || "Otros",
     genero: p.genero || "Unisex", color: p.color || "", imagen: p.imagen || "", ref: p.ref || p.id,
     precioEUR: Number(p.precioEUR) || 0, precioAntesEUR: Number(p.precioAntesEUR) || 0, top: !!p.top,
+    familia: p.familia || ((p.nombre || "") + "|" + (p.genero || "")), tono: tonoColor(p.color),
     tallas: (p.tallas || []).map(t => ({ t: String(t.t), d: !!t.d })).sort((a,b) => ordenTalla(a.t, b.t))
   };
 }
@@ -509,7 +518,7 @@ function filtrados(){
     if (f.seleccion.size && !selecciones(p).some(v => f.seleccion.has(v))) return false;
     if (f.categoria.size && !f.categoria.has(p.categoria)) return false;
     if (f.genero.size && !f.genero.has(p.genero)) return false;
-    if (f.color.size && !f.color.has(p.color)) return false;
+    if (f.color.size && !f.color.has(p.tono)) return false;
     if (f.talla.size && !p.tallas.some(t => f.talla.has(t.t) && (t.d || !f.soloStock))) return false;
     if (f.soloStock && !p.tallas.some(t => t.d)) return false;
     return true;
@@ -526,7 +535,7 @@ function filtrados(){
 }
 function valores(campo){
   const s = new Set();
-  state.catalogo.forEach(p => { if (campo === "seleccion") selecciones(p).forEach(v => s.add(v)); else if (campo === "talla") p.tallas.forEach(t => s.add(t.t)); else if (p[campo]) s.add(p[campo]); });
+  state.catalogo.forEach(p => { if (campo === "color") s.add(p.tono); else if (campo === "seleccion") selecciones(p).forEach(v => s.add(v)); else if (campo === "talla") p.tallas.forEach(t => s.add(t.t)); else if (p[campo]) s.add(p[campo]); });
   const arr = [...s];
   if (campo === "seleccion") return ["Ofertas","Más vendidos"].filter(v => s.has(v));
   return campo === "talla" ? arr.sort(ordenTalla) : arr.sort((a,b) => a.localeCompare(b));
@@ -548,7 +557,8 @@ function renderFacets(){
 function contarFiltros(){ const f = state.f; return f.seleccion.size + f.categoria.size + f.genero.size + f.talla.size + f.color.size; }
 
 function renderGrid(){
-  const list = filtrados();
+  const vistos = new Set();
+  const list = filtrados().filter(p => vistos.has(p.familia) ? false : (vistos.add(p.familia), true));
   $("#count").textContent = list.length === 1 ? "1 producto" : list.length + " productos";
   const n = contarFiltros();
   $("#fcount").textContent = n ? "(" + n + ")" : "";
@@ -563,6 +573,7 @@ function renderGrid(){
       <div>
         <div class="nm">${esc(p.nombre)}</div>
         <div class="meta">${esc([p.color, p.genero].filter(Boolean).join(", "))}</div>
+        ${(() => { const n = familiaDe(p).filter(x => x.tallas.some(t => t.d)).length; return n > 1 ? `<div class="ncol">${n} colores</div>` : ""; })()}
       </div>
       <div class="price"><span class="now">${fmt(precioLocal(p.precioEUR))}</span>${d ? `<span class="was">${fmt(precioAntesLocal(p.precioAntesEUR))}</span>` : ""}</div>
       ${disp.length ? `<div class="sizes-mini">Tallas: ${esc(disp.join(" "))}</div>` : ""}
@@ -593,6 +604,7 @@ function renderProduct(){
         <button class="xbtn" type="button" data-close aria-label="Cerrar">×</button></div>
       <div class="price"><span class="now">${fmt(precioLocal(p.precioEUR))}</span>${d ? `<span class="was">${fmt(precioAntesLocal(p.precioAntesEUR))}</span><span class="badge" style="position:static">-${d}%</span>` : ""}</div>
       ${p.color ? `<div><strong>Color:</strong> ${esc(p.color)}</div>` : ""}
+      ${(() => { const fam = familiaDe(p).filter(x => x.tallas.some(t => t.d) || x.id === p.id); return fam.length > 1 ? `<div class="swatches" role="group" aria-label="Colores">${fam.map(x => `<button type="button" data-color="${esc(x.id)}" aria-pressed="${x.id === p.id}" title="${esc(x.color)}">${imgTag(x, x.color)}</button>`).join("")}</div>` : ""; })()}
       <div>
         <div style="font-weight:700;margin-bottom:8px">Talla</div>
         <div class="sizes" role="group" aria-label="Talla">
@@ -608,6 +620,8 @@ function renderProduct(){
 $("#pdialog").addEventListener("click", e => {
   const dlg = $("#pdialog");
   if (e.target === dlg || e.target.closest("[data-close]")) { dlg.close(); return; }
+  const cb = e.target.closest("[data-color]");
+  if (cb){ const np = state.catalogo.find(x => x.id === cb.dataset.color); if (np){ const disp = tallasDisp(np); sel = { id: np.id, talla: sel.talla && disp.includes(sel.talla) ? sel.talla : (disp.length === 1 ? disp[0] : null), qty: sel.qty }; renderProduct(); } return; }
   const tb = e.target.closest("[data-talla]");
   if (tb && !tb.disabled){ sel.talla = tb.dataset.talla; renderProduct(); return; }
   const qb = e.target.closest("[data-q]");
