@@ -296,7 +296,7 @@ footer p{margin:0;max-width:62ch}
     <div class="toolbar">
       <label class="search"><span class="sr">Buscar</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="q" type="search" placeholder="Buscar leggings, shorts, sudadera…" autocomplete="off">
+        <input id="q" type="search" placeholder="Buscar hoodie, buzo, flare, playera…" autocomplete="off">
       </label>
       <button class="filterbtn" id="openFilters" type="button">Filtros <span id="fcount"></span></button>
       <label><span class="sr">Ordenar</span>
@@ -436,6 +436,7 @@ const DEMO = { actualizado: null, productos: [
 const TONOS = [["Negro",/black|onyx/],["Blanco",/white/],["Beige",/beige|chalk|linen|canvas|sand|cream|mushroom/],["Gris",/grey|gray|charcoal|pebble|smokey|stratus/],["Azul",/blue|navy|petrol|teal/],["Verde",/green|olive/],["Rosa",/pink|peach/],["Morado",/purple|lilac|plum/],["Rojo",/burgundy|maroon|red|cherry/],["Marrón",/brown|espresso/],["Amarillo",/yellow|butter/]];
 function tonoColor(c){ const s = String(c || "").split("/")[0].toLowerCase(); for (const [n, re] of TONOS) if (re.test(s)) return n; return "Otros"; }
 function familiaDe(p){ return state.catalogo.filter(x => x.familia === p.familia); }
+const SINON = { "Hoodies y sudaderas": "buzo buzos sudadera hoodie capucha", "Pantalones anchos y flare": "acampanado acampanados flare palazzo pants sueltos", "Pantalones y joggers": "pants jogger chandal buzo", "Camisetas": "playera playeras remera polo tshirt", "Camisetas sin mangas": "tank musculosa playera", "Chaquetas": "chamarra casaca jacket" };
 const ORDEN_TALLAS = ["XXS","XS","S","M","L","XL","XXL","2XL","3XL","4XL","5XL"];
 const COLORES = { negro:"#1d1f24", blanco:"#f1f1ee", gris:"#8a8f99", rosa:"#e8a3b4", verde:"#5f7d5a", azul:"#3b5aa8", rojo:"#c23b3b", beige:"#d8c7a8", marron:"#7a5a43", morado:"#7d5ba6", amarillo:"#e7c14a", naranja:"#e38a3c" };
 
@@ -512,7 +513,7 @@ function filtrados(){
   const palabras = norm(f.q).split(/\s+/).filter(Boolean);
   const out = state.catalogo.filter(p => {
     if (palabras.length){
-      const txt = norm([p.nombre, p.categoria, p.color, p.genero, p.marca].join(" "));
+      const txt = norm([p.nombre, p.categoria, p.color, p.genero, p.marca, SINON[p.categoria] || ""].join(" "));
       if (!palabras.every(w => txt.includes(w))) return false;
     }
     if (f.seleccion.size && !selecciones(p).some(v => f.seleccion.has(v))) return false;
